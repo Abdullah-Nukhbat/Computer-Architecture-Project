@@ -1,0 +1,27 @@
+# Part 1 log
+- Ran scripts/run_P1.sh (compress95 and cc1, full run, no instruction cap)
+- diff results: empty for both, so outputs are correct
+- Raw outputs are in results/
+- Raw Outputs:
+-results/compress95_P1.txt:sim_num_insn               80432477 # total number of instructions committed
+-results/compress95_P1.txt:sim_num_loads              17119142 # total number of loads committed
+-results/compress95_P1.txt:sim_num_stores         11648151.0000 # total number of stores committed
+-results/compress95_P1.txt:sim_num_branches           14361059 # total number of branches committed
+-results/compress95_P1.txt:sim_cycle                  46912553 # total simulation time in cycles
+-results/compress95_P1.txt:sim_IPC                      1.7145 # instructions per cycle
+-results/compress95_P1.txt:sim_CPI                      0.5833 # cycles per instruction
+-results/compress95_P1.txt:bpred_bimod.bpred_dir_rate    0.8992 # branch direction-prediction rate (i.e., all-hits/updates)
+-results/compress95_P1.txt:il1.miss_rate                0.0001 # miss rate (i.e., misses/ref)
+-results/compress95_P1.txt:dl1.miss_rate                0.0470 # miss rate (i.e., misses/ref)
+-results/compress95_P1.txt:ul2.miss_rate                0.0990 # miss rate (i.e., misses/ref)
+-results/cc1_P1.txt:sim_num_insn              279206786 # total number of instructions committed
+-results/cc1_P1.txt:sim_num_loads              70960065 # total number of loads committed
+-results/cc1_P1.txt:sim_num_stores         38108342.0000 # total number of stores committed
+-results/cc1_P1.txt:sim_num_branches           56241672 # total number of branches committed
+-results/cc1_P1.txt:sim_cycle                 303355315 # total simulation time in cycles
+-results/cc1_P1.txt:sim_IPC                      0.9204 # instructions per cycle
+-results/cc1_P1.txt:sim_CPI                      1.0865 # cycles per instruction
+-results/cc1_P1.txt:bpred_bimod.bpred_dir_rate    0.8877 # branch direction-prediction rate (i.e., all-hits/updates)
+-results/cc1_P1.txt:il1.miss_rate                0.0576 # miss rate (i.e., misses/ref)
+-results/cc1_P1.txt:dl1.miss_rate                0.0149 # miss rate (i.e., misses/ref)
+-results/cc1_P1.txt:ul2.miss_rate                0.0415 # miss rate (i.e., misses/ref)
