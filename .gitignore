@@ -1,0 +1,6 @@
+simplesim-3.0/
+BenchMarks_Little/
+*.o
+*.tgz
+*.tar.gz
+*.zip
