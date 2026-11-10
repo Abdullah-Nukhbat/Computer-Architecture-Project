@@ -1,0 +1,5 @@
+benchmark,design,sim_IPC,sim_cycle
+compress95,"W=8, RUU 16",1.8827,42721646
+compress95,"W=4, RUU 64",1.8629,43175449
+cc1,"W=8, RUU 16",0.9575,104441957
+cc1,"W=4, RUU 64",0.9222,108441009
