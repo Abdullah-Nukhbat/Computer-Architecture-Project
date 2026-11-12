@@ -1,20 +1,18 @@
 #!/bin/bash
 # Part 3: RUU size sweep (12 runs) + 2 extra runs for question (c).
 # Safe to re-run: finished runs are skipped.
-ROOT=/mnt/d/CA_Project
-SIM=$ROOT/simplesim-3.0/sim-outorder
-RES=$ROOT/results
-cd $ROOT/BenchMarks_Little/Input || exit 1
+source "$(dirname "$0")/env.sh"   # reads SIM, BENCH, RES from .env
+cd "$BENCH/Input" || exit 1
 
 run_bench () {
   NAME=$1; OPTS=$2; TAG=$3
-  OUT=$RES/${NAME}_${TAG}.txt
-  if grep -q "^sim_IPC" $OUT 2>/dev/null; then return; fi
+  OUT="$RES/${NAME}_${TAG}.txt"
+  if grep -q "^sim_IPC" "$OUT" 2>/dev/null; then return; fi
   echo "running $NAME $TAG"
   if [ "$NAME" = "compress95" ]; then
-    env -i $SIM $OPTS -redir:sim $OUT ../Programs/compress95.ss < compress95.in > /dev/null
+    env -i "$SIM" $OPTS -redir:sim "$OUT" ../Programs/compress95.ss < compress95.in > /dev/null
   else
-    env -i $SIM $OPTS -redir:sim $OUT ../Programs/cc1.ss -O 1stmt.i
+    env -i "$SIM" $OPTS -redir:sim "$OUT" ../Programs/cc1.ss -O 1stmt.i
   fi
 }
 

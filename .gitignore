@@ -4,3 +4,5 @@ BenchMarks_Little/
 *.tgz
 *.tar.gz
 *.zip
+.env
+__pycache__/

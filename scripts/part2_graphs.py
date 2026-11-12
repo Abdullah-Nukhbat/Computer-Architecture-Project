@@ -3,8 +3,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-RES = "/mnt/d/CA_Project/results"
-DATA = "/mnt/d/CA_Project/data"
+from paths import RES, DATA  # reads .env (defaults: repo results/ and data/)
 benches = ["compress95", "cc1"]
 Ws = [1, 2, 4, 8]
 modes = ["ooo", "inorder"]
