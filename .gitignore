@@ -6,3 +6,4 @@ BenchMarks_Little/
 *.zip
 .env
 __pycache__/
+report/report.html

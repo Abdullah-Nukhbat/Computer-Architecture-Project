@@ -1,0 +1,5 @@
+# One member per line: Name, 4-digit roll number
+# Edit these, then rebuild the report with:  python3 scripts/build_report.py
+Member 1 Name, 0000
+Member 2 Name, 0000
+Member 3 Name, 0000

@@ -17,8 +17,10 @@
 
 Run it with:
 
-    env -i ./sim-outorder -config P6_final.cfg -redir:sim compress95_P6_final.txt ../Programs/compress95.ss < compress95.in > compress95.out
-    env -i ./sim-outorder -config P6_final.cfg -redir:sim cc1_P6_final.txt ../Programs/cc1.ss -O 1stmt.i
+    env -i ./sim-outorder -config P6_final.cfg -redir:sim compress95_P6_final.txt \
+        ../Programs/compress95.ss < compress95.in > compress95.out
+    env -i ./sim-outorder -config P6_final.cfg -redir:sim cc1_P6_final.txt \
+        ../Programs/cc1.ss -O 1stmt.i
 
 Options that differ from the default:
 
@@ -52,9 +54,10 @@ Default configuration for comparison: 16 + 4 + 16 + 16 + 32 + 2 = 86.
 Stage 1 (D00-D06) changes one idea at a time from the default. Stage 2 (D07-D15)
 combines the winners and tests where to take units from. Stage 3 (D16-D21) merges
 the two best and tries the free knobs (associativity, block size). Stage 4
-(D22-D25) refines around the leader.
+(D22-D25) refines around the leader. The compress95 and cc1 columns are IPC, and
+Mean is their geometric mean.
 
-| Design | Configuration | Cost | IPC compress95 | IPC cc1 | Geo. mean | vs default |
+| Design | Configuration | Cost | compress95 | cc1 | Mean | vs default |
 |---|---|---|---|---|---|---|
 | D00 | W=4, RUU 16, il1 16 KB 1-way 32 B, dl1 16 KB 4-way 32 B, L2 256 KB 4-way 64 B, bimod 2048 | 86 | 1.7145 | 0.8849 | 1.2317 | +0.0% |
 | D01 | W=4, RUU 16, il1 16 KB 1-way 32 B, dl1 16 KB 4-way 32 B, L2 256 KB 4-way 64 B, comb | 90 | 1.8442 | 0.9003 | 1.2885 | +4.6% |
