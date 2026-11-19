@@ -44,36 +44,70 @@ first 100M instructions. My run is the full 279M, so 0.92 is expected.
 - data/part1_mpki.png
 
 ### Instruction mix
-[Write 4-6 sentences. Base: loads, stores and branches together are about 54%
-of compress95 and 59% of cc1. cc1 has more loads (25.4% vs 21.3%) and more
-branches (20.1% vs 17.9%). Say what that implies: more memory and control
-instructions means more chances to stall.]
+Loads, stores and branches together make up 53.6% of compress95's instructions
+and 59.2% of cc1's, so cc1 has fewer plain ALU instructions (40.8% "other"
+against 46.4%). cc1 has more loads (25.4% against 21.3%) and more branches
+(20.1% against 17.9%), while the two programs store at a similar rate (13.7% and
+14.5%). A branch every 5 instructions is typical of integer code: cc1 is a
+compiler that spends its time walking trees and lists and deciding what to do
+next, while compress95 runs one tight compression loop over a buffer. More
+loads give more chances to wait on the data cache, and more branches give more
+chances to mispredict and throw work away, so on instruction mix alone cc1
+should be the slower and more sensitive program.
 
 ### IPC
-compress95 reaches IPC 1.71 and cc1 0.92, which is 43% and 23% of the peak of 4
-for this 4-wide machine. [Explain why neither is near the peak: width is not
-the limit, so cache misses and branch mispredictions must be.]
+compress95 reaches IPC 1.71 and cc1 only 0.92, which is 43% and 23% of the peak
+of 4 on this 4-wide machine. Neither comes close to the peak, so the width is
+not what limits them. For compress95 the main losses are 18.0 branch
+mispredictions and 17.4 data-cache misses per 1000 instructions. cc1 suffers
+from the same problems, plus 76.3 instruction-cache misses per 1000 instructions:
+when the front end cannot fetch, there is nothing in the window to execute. The
+result is that cc1 needs 1.09 cycles per instruction against 0.58 for
+compress95, even though both run on the same hardware.
 
 ### Miss rates
-cc1's L1 instruction cache misses 5.76% of references against 0.01% for
+cc1's L1 instruction cache misses 5.76% of accesses against 0.01% for
 compress95, while compress95's L1 data cache misses 4.70% against 1.49% for cc1.
-[Explain why: cc1 is a compiler with a large code footprint, compress95 uses a
-big hash table that does not fit in the 16 KB data cache.]
+cc1 is a large program (a whole C compiler) whose code does not fit in the 16 KB
+direct-mapped instruction cache, whereas compress95's hot code is small enough
+to stay in the cache (only 13,089 instruction misses in 80 million instructions). compress95's data, however, is a large hash table
+accessed at effectively random positions, which a 16 KB data cache cannot hold.
+The L2 catches most of these misses (it misses 9.9% of its accesses for
+compress95 and 4.2% for cc1), so main memory is reached only rarely. The two
+benchmarks therefore stress opposite sides of the memory system: compress95 the
+data side, cc1 the instruction side.
 
 ### Branch mispredictions
 The bimodal predictor is right 89.9% of the time on compress95 and 88.8% on cc1,
-which is about 18.0 and 22.6 mispredictions per 1000 instructions.
-[Explain: each misprediction throws away wrong-path work, so cc1 loses more.]
+which is 18.0 and 22.6 mispredictions per 1000 instructions. Accuracy alone hides
+the difference: cc1 has more branches (20.1% of instructions against 17.9%), so
+its slightly lower accuracy turns into 26% more mispredictions per instruction.
+Each misprediction squashes every wrong-path instruction fetched after the
+branch and restarts fetch, so on a 4-wide machine one misprediction can waste
+several cycles of up to 4 instructions each. A compiler's branches depend on the
+input program being compiled, which makes them hard to predict, while
+compress95's loop branches repeat in regular patterns.
 
 ## Predictions (to be checked in Parts 4 and 5)
 
-(i) Cache sensitivity: [your prediction. Base: compress95 should react to L1
-data-cache changes (dl1 miss rate 4.7%), cc1 to instruction-cache changes
-(il1 miss rate 5.8%), and cc1 has more loads overall (25%). Say which benchmark
-you expect to be MORE sensitive overall and why.]
+(i) Cache sensitivity: compress95 should be the more sensitive benchmark to
+changes in the L1 data cache, because its dl1 miss rate (4.7%) is three times
+cc1's and its hash table is larger than 16 KB, so a bigger data cache keeps
+removing misses. cc1 should be the more sensitive benchmark to anything that
+makes instruction misses more expensive, such as removing the L2 or slowing
+main memory, because its 76 instruction-cache misses per 1000 instructions stall
+fetch completely and cannot be hidden by out-of-order execution. Overall we
+expect cc1 to suffer more from a weaker memory system.
 
-(ii) Branch-predictor sensitivity: [your prediction. Base: cc1 has more branches
-(20.1% vs 17.9%) and higher MPKI (22.6 vs 18.0), so it should be more sensitive.]
+(ii) Branch-predictor sensitivity: cc1 has more branches (20.1% against 17.9%)
+and a higher misprediction rate (22.6 MPKI against 18.0), so we predict that cc1
+will be more sensitive to the branch predictor than compress95.
 
 ## Observations / problems
-- [Anything surprising or any error you hit while running the scripts.]
+- cc1's IPC for the full run (0.920) is higher than for its first 100 million
+  instructions with the same configuration (0.885, Part 3 RUU 16), so the later
+  part of the compilation runs faster than the start.
+- compress95 commits 80,432,477 instructions here but 80,432,502 in Parts 2-6.
+  Part 1 writes the program's output to a file and later parts send it to
+  /dev/null, which most likely changes how the program buffers its output. IPC
+  is identical (1.7145) wherever the configuration is the same.

@@ -85,29 +85,56 @@ the two best and tries the free knobs (associativity, block size). Stage 4
 
 Scatter plot: data/part6_g1_ipc_vs_cost.png. Final vs default: data/part6_g2_final_vs_default.png.
 
-## (c) Justification (half to one page)
-[Your own words. Points backed by the results:
-- Width: Part 2 showed compress95 keeps gaining up to W=8 (OoO IPC 1.86 -> 2.28),
-  and in Part 3(c) W=8/RUU16 beat W=4/RUU64. D04 (W=8) was the biggest
-  single step: +14%. Width costs 4 per W, so W=8 is a third of the budget.
-- RUU 64: Part 3 showed gains flatten after 32-64 entries at W=4; at W=8 the
-  window must be bigger to keep 8 units busy. Trading the dl1 from 16 KB down to
-  8 KB to pay for RUU 32 -> 64 won both times it was tried (D16 1.549 vs D10
-  1.519; D17 1.648 vs D25 1.615).
-- Combined predictor: Part 5, best on both (MPKI 12.4 and 20.2); 6 units for
-  +4.6% on its own (D01). Bimodal 8192 (D21, 8 units) did worse than comb.
-- Instruction cache: cc1's biggest problem is il1 misses (Part 4(d): 80.8 per
-  1000 instructions). Associativity and block size are free in the cost model:
-  4-way il1 alone gave cc1 +7.5% (D03); 64 B blocks lifted cc1 from 1.09 to
-  1.24 (D16 -> D17) because compiler code is long straight-line sequences.
-- What we gave up: dl1 is halved to 8 KB (the bigger RUU hides the extra data
-  misses, see above) and L2 to
-  128 KB. L2 can't go lower: 64 KB (D08) and 32 KB (D15) badly hurt cc1, which
-  matches Part 4(c,d). No L2 at all (D06) was the worst design (-10.6%).
-- 6 units are left unused: nothing useful costs 6 or less (RUU 128 would cost
-  +16, a 16 KB dl1 +8).
-- Caveat: the simulator keeps hit latency at 1 cycle whatever the
-  associativity, so the free 8/16-way caches would be slower in real hardware.]
+## (c) Justification
+Our design spends the budget where Parts 2 to 5 showed our two programs lose the
+most: issue width and window for compress95, and the instruction supply for
+cc1. It reaches a geometric-mean IPC of 1.656 for 94 units, 34% above the
+default configuration's 1.232 at 86 units.
+
+Width and window (48 of 94 units). Part 2 showed that compress95 has a lot of
+ILP: its out-of-order IPC was still rising at W=8 (1.86 to 2.28), and in Part 3(c)
+a W=8 machine beat a W=4 machine with a four-times-larger window. In the search,
+moving to W=8 with a 32-entry RUU (D04) was the largest single step, +14%, even
+though we paid for it by halving the L2. At W=8, however, a 16- or 32-entry RUU is
+too small to keep 8 issue slots busy, so we doubled the RUU to 64. To pay for it
+we cut the L1 data cache from 16 KB to 8 KB, and this trade won both times we
+tried it (D16 against D10, D17 against D25). The larger window hides most of the
+extra data misses, which Part 4 showed cost only 6 cycles each when they hit in
+the L2.
+
+Branch predictor (6 units). Part 5 showed the combined predictor is the most
+accurate for both programs (12.4 and 20.2 MPKI) and that mispredictions cost an
+aggressive core more. On its own it gave +4.6% over the default for 4 extra units
+(D01). A larger bimodal table is not a substitute: bimod 8192 costs more (8
+units) and lost to the combined predictor (D21: 1.611 against D17: 1.648).
+
+Instruction cache (16 units, same size as the default). Part 4(d) showed that
+cc1's main problem is instruction misses: 80.8 per 1000 instructions. Instead of
+paying for a bigger cache, we used the options the cost model gives for free.
+Making the 16 KB instruction cache 4-way instead of direct-mapped raised cc1's IPC
+by 7.5% on its own (D03), and 64-byte blocks raised it by another 13.2% (1.095 to
+1.239, D16 to D17), because a compiler's code runs through long sequences of
+instructions, so each 64-byte block brings in the next 8 instructions (PISA
+instructions are 8 bytes) before they are needed. A 16-way, 128 KB L2 (D24) added a final 0.5%.
+
+What we gave up. The L1 data cache is half the default size (8 KB) and the L2 is
+half the default size (128 KB). The L2 cannot go lower: Part 4(c) showed it is
+what protects cc1 from memory latency, and in the search a 64 KB L2 (D08) cut cc1
+to 0.922 and a 32 KB L2 (D15) to 0.704, while removing it (D06) gave the worst
+design of all (-10.6%). We also tried 128-byte instruction blocks (D22), which
+helped cc1 (1.289) but hurt compress95 (2.036), lowering the mean. 6 units are
+left unused, because nothing that would still help costs 6 units or less: the next
+RUU size (128) costs 16 more and returning the data cache to 16 KB costs 8 more.
+
+Our design relies on two simplifications in the simulator. Cache associativity
+and block size are free in the cost model, and sim-outorder keeps an L1 hit at 1
+cycle however associative the cache is. Real 8- and 16-way caches would be slower
+and use more power, so part of our gain from them would shrink in real hardware.
+Within the rules of this project, though, D24 is the fastest design we found,
+and it is faster on both benchmarks individually: +28.0% for compress95 and +41.1%
+for cc1.
 
 ## Observations / problems
-- [anything surprising]
+- The default configuration simulated in Part 6 (D00) gives exactly the Part 3
+  RUU 16 results (compress95 1.7145, cc1 0.8849), which confirms the cost-model
+  baseline.
