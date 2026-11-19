@@ -1,5 +1,5 @@
-# One member per line: Name, 4-digit roll number
+# One member per line: Name, roll number
 # Edit these, then rebuild the report with:  python3 scripts/build_report.py
-Member 1 Name, 0000
-Member 2 Name, 0000
-Member 3 Name, 0000
+Laiba Fida, 24L-0575
+Hareem Ahmad, 24L-0598
+Abdullah Nukhbat, 24L-0890
