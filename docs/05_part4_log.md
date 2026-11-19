@@ -59,131 +59,157 @@ misses of a fully-associative cache of the same size minus compulsory; conflict 
 misses of the real 4-way cache minus the fully-associative one.
 
 ## Graph 1a: dl1 miss rate vs capacity (data/part4_g1_dl1_miss_vs_capacity.png)
-Growing the L1 data cache from 1 KB to 64 KB cuts compress95's miss rate from
-9.45% to 2.68% and cc1's from 11.41% to 0.35%. cc1 starts higher but falls much
-faster: by 16 KB it misses only 1.42% of accesses, and at 64 KB almost
-everything fits. compress95 improves steadily but slowly, losing 26% to 43% of
-its misses with each 4x step, and still misses 2.68% at 64 KB. This shows the two
-programs have very different working sets: most of cc1's data accesses go to a
-set of data that fits in about 16 KB, while compress95's hash table is larger
-than 64 KB and is accessed at scattered positions. A bigger data cache is
-therefore worth much more to compress95 at the sizes a designer would actually
-build (16 KB and up).
+Growing the L1 data cache from 1 KB to 64 KB lowers compress95's miss rate from
+9.45% to 2.68% and cc1's from 11.41% to 0.35%. In misses per 1000 instructions,
+compress95 goes from 35.0 to 9.9 and cc1 from 47.7 to just 1.4. cc1 starts worse
+but improves much faster: by 16 KB it misses only 1.42% of accesses, while
+compress95 loses only 26% to 43% of its misses with each 4x step. Graph 4 shows
+that nearly all of these misses are capacity misses, so this curve is really a
+picture of each program's working set. Most of cc1's data fits in about 16 KB,
+while compress95's hash table is larger than 64 KB and is read at scattered
+positions. At the sizes a designer would actually build, a bigger data cache is
+worth far more to compress95 than to cc1.
 
 ## Graph 1b: IPC vs capacity (data/part4_g2_ipc_vs_capacity.png)
-IPC rises from 1.601 to 1.775 (+10.9%) for compress95 and from 0.837 to 0.898
-(+7.3%) for cc1 between 1 KB and 64 KB. These gains are small compared with the
-change in miss rate: cc1's miss rate falls by a factor of 33 but its IPC rises
-only 7%. Two things hide the extra misses. Almost all of them hit in the L2,
-which costs only 6 cycles, and the out-of-order core keeps executing independent
-instructions during those 6 cycles. Only about a quarter of instructions are
-loads (21% and 25%), so even a large miss-rate change touches few instructions.
-compress95 gains more because it has more data misses left to remove (2.7%
-still at 64 KB against 0.35%) and more ILP to use once they are gone.
+IPC rises from 1.601 to 1.775 for compress95 (11%) and from 0.837 to 0.898 for
+cc1 (7%) as the data cache grows from 1 KB to 64 KB, much less than the drop in
+misses suggests. Going from 1 KB to 64 KB removes 25 misses per 1000 instructions
+for compress95 and 46 for cc1. If each removed miss saved the full 6-cycle L2
+hit time, CPI would fall by about 0.15 and 0.28; the measured falls are only 0.061
+and 0.081. So each of these misses really cost 2.4 cycles for compress95 and 1.7
+for cc1, which means the out-of-order core hid roughly 60% and 70% of the L2
+latency by running independent instructions in the meantime. cc1 saves more CPI
+but gains less IPC, because its base CPI (1.13 at 16 KB) is twice compress95's
+(0.58), so the same saving is a smaller share of its run time. With an L2 behind
+it and an out-of-order core in front of it, a bigger L1 helps, but only modestly.
 
 ## Graph 2a: dl1 miss rate vs block size (data/part4_g3_dl1_miss_vs_block.png)
-With the capacity fixed at 16 KB, longer blocks reduce the miss rate for both
-programs: from 7.79% to 4.31% for compress95 and from 2.41% to 1.28% for cc1
-between 8 and 64 bytes. Each doubling helps less than the one before (32 to 64
-bytes removes only 0.39 points for compress95 and 0.14 for cc1). A longer block
-brings in the neighbouring words of the one that missed, and programs often use
-those soon (spatial locality), so many future misses become hits. But with a
-fixed capacity, longer blocks mean fewer blocks: a 64-byte-block 16 KB cache
-holds only 256 blocks, so data that is not near other used data is evicted
-sooner, which is why the gain shrinks.
+With the capacity fixed at 16 KB, longer blocks cut compress95's miss rate from
+7.79% to 4.31% and cc1's from 2.41% to 1.28% between 8 and 64 bytes, about 45% for
+both. Each doubling helps less than the last: going from 8 to 16 bytes removes
+2.10 points for compress95, but 32 to 64 removes only 0.39. A miss brings in the
+whole block, and programs usually touch nearby words soon after (spatial
+locality), so a longer block turns future misses into hits. With the capacity
+fixed, though, longer blocks mean fewer of them, only 256 at 64 bytes against
+2048 at 8 bytes, so data that is used on its own is pushed out sooner.
+compress95's hash-table accesses are spread out, which is why it still misses
+4.3% of the time even with 64-byte blocks.
 
 ## Graph 2b: IPC vs block size (data/part4_g4_ipc_vs_block.png)
-IPC hardly changes with block size: compress95 goes from 1.7014 at 8 bytes to
-1.7145 at 32 bytes (+0.8%) and cc1 from 0.8818 to 0.8854 at 64 bytes (+0.4%),
-even though the miss rate drops by 45% and 47%. For compress95 the 64-byte block
-has the lowest miss rate (4.31%) but not the highest IPC: 1.7144 against 1.7145
-at 32 bytes, which is a tie. The misses that longer blocks remove are the easy
-ones: neighbouring words of a block that was just loaded, which the out-of-order
-core would mostly have overlapped anyway. The scattered hash-table misses that
-really stall compress95 are not helped by spatial locality. Note that in
-sim-outorder an L1 miss that hits in the L2 costs a fixed 6 cycles whatever the
-L1 block size, so these runs do not charge longer blocks a longer transfer; in
-real hardware a 64-byte refill takes longer than a 32-byte one, which would
-make the longest block lose.
+IPC barely changes with block size: compress95 goes from 1.7014 at 8 bytes to
+1.7145 at 32 bytes (0.8%), and cc1 from 0.8818 to 0.8854 at 64 bytes (0.4%). For
+compress95, going from 8 to 64 bytes removes 12.9 misses per 1000 instructions
+but saves only 0.004 CPI, about 0.3 cycles per miss, so those misses were almost
+free to begin with. The misses that longer blocks remove are neighbouring words
+of data that was just loaded, and the out-of-order core overlaps them easily;
+the scattered misses that really slow compress95 are not helped at all. In
+sim-outorder, an L1 miss that hits in the L2 costs the same 6 cycles whatever
+the block size, so these runs do not include the longer transfer time of a
+bigger block. In real hardware that extra transfer time would make 64-byte
+blocks lose to 32-byte ones, which is why 32 bytes is a sensible default.
 
 ## Graph 3: CPI vs memory latency (data/part4_g5_cpi_vs_latency.png)
-With the L2 in place, raising main-memory latency from 25 to 200 cycles moves
-CPI only from 0.588 to 0.707 for compress95 and from 1.155 to 1.805 for cc1.
-Without the L2, CPI explodes: from 0.784 to 2.317 for compress95 and from 2.978
-to 16.717 for cc1, where the machine needs almost 17 cycles per instruction.
-(The y-axis is log scale so that all four lines are visible.) The lines are
-almost straight, which means every extra cycle of memory latency is paid by a
-fixed fraction of instructions: the ones whose miss goes all the way to memory.
-cc1 without an L2 is by far the worst case because every instruction-cache miss
-goes to memory.
+With the L2 in place, raising memory latency from 25 to 200 cycles moves CPI only
+from 0.59 to 0.71 for compress95 and from 1.16 to 1.81 for cc1. Without the L2,
+CPI rises from 0.78 to 2.32 for compress95 and from 2.98 to 16.7 for cc1. The
+lines are almost straight, so each extra cycle of latency costs a fixed amount:
+0.068 and 0.371 CPI per 100 cycles with the L2, and 0.876 and 7.85 without it.
+With the L2, compress95 sends 2.6 accesses per 1000 instructions to memory, which
+would cost 0.26 CPI per 100 cycles if fully exposed; it pays only 0.068, so about
+three quarters is hidden. cc1 sends 4.3, worth 0.43 CPI, and pays 0.37, so only
+14% is hidden, because most of its memory traffic is instruction fetches and
+nothing can run while fetch waits. Memory latency hurts most when it delays
+instructions rather than data. (The y-axis uses a log scale so all four lines
+fit on one graph.)
 
-## Graph 4 (extra): 3C breakdown (data/part4_g6_3c_breakdown.png)
-See question (a).
+## Graph 4: 3C breakdown of dl1 misses (data/part4_g6_3c_breakdown.png)
+Almost all data-cache misses are capacity misses for both programs. At the
+default 16 KB, compress95's 4.70% miss rate is 0.07 points compulsory, 4.33
+capacity and 0.31 conflict, and cc1's 1.42% is 0.06, 1.22 and 0.15. Compulsory
+misses are tiny because over 100 million instructions each block is reused many
+times after it is first loaded. Conflict misses are small with 4-way
+associativity and shrink as the cache grows, from 0.54 to 0.11 points for
+compress95 and from 0.83 to 0.07 for cc1. Capacity misses fall from 8.8% to 2.5%
+for compress95 and from 10.5% to 0.23% for cc1 between 1 KB and 64 KB. Because
+the misses come from capacity, the fix is a bigger cache rather than more
+associativity: compress95 needs more than 64 KB, while 16 KB is already enough
+for cc1.
 
-## Graph 5 (extra): L1 misses per 1000 instructions (data/part4_g7_l1_misses_per_1000.png)
-See question (d).
+## Graph 5: L1 misses per 1000 instructions (data/part4_g7_l1_misses_per_1000.png)
+With the default caches, compress95 has 0.16 instruction misses and 17.4 data
+misses per 1000 instructions, while cc1 is the other way round, with 80.8
+instruction misses and 5.9 data misses. In total cc1 makes 87 L1 misses per 1000
+instructions, five times compress95's 17.6, and without an L2 every one of them
+goes to main memory. At 200 cycles of latency, cc1's misses alone would add 17.3
+cycles per instruction if none of the latency were hidden, and its measured CPI
+is 16.7, so almost nothing is hidden. compress95's misses would add 3.5 cycles,
+but its measured CPI is only 2.3, because data misses can overlap with other work
+in the window. The type of miss matters as much as the number: instruction
+misses are nearly impossible to hide, so a program with a large code footprint
+is the one that needs an L2 most.
 
 ## Question (a): classify the misses (3 Cs), explain the capacity graph
-The extra runs split every miss into the 3 Cs. Compulsory misses are tiny and
-constant: 0.068% of data accesses for compress95 and 0.055% for cc1 at every
-size, because each block is loaded once for the first time and then reused many
-times during 100 million instructions. Conflict misses are small with a 4-way
-cache and shrink as the cache grows (0.54% to 0.11% for compress95, 0.83% to
-0.07% for cc1). Almost all of the misses are capacity misses: at 16 KB they are
-4.33 of compress95's 4.70 points and 1.22 of cc1's 1.42. The capacity graph is
-therefore the curve of capacity misses: each time the cache grows, more of the
-working set fits. cc1's capacity misses fall from 10.5% to 0.23% because its
-data fits by 16 to 64 KB, while compress95 still has 2.5% capacity misses at 64 KB
-because its hash table is larger than that.
+The extra runs let us split every miss into the 3 Cs (Graph 4). Compulsory misses
+are tiny and constant, 0.068% of data accesses for compress95 and 0.055% for cc1
+at every size, because each block is loaded once for the first time and then
+reused many times. Conflict misses are small with a 4-way cache and shrink as the
+cache grows. Almost everything else is capacity misses: at 16 KB they are 4.33 of
+compress95's 4.70 points and 1.22 of cc1's 1.42. The capacity graph is therefore
+the curve of capacity misses, and it falls each time more of the working set
+fits. cc1's capacity misses drop from 10.5% to 0.23% because its data fits by 16
+to 64 KB, while compress95 still has 2.5% capacity misses at 64 KB because its
+hash table is larger than that.
 
 ## Question (b): block size, spatial locality, miss penalty; lowest miss rate = highest IPC?
 Spatial locality explains why the miss rate falls with longer blocks: a miss on
-one word also brings in the words around it, and the next accesses often fall
-there. With a fixed 16 KB, though, longer blocks mean fewer of them, so the gain
-per doubling shrinks (from -2.10 to -0.39 points for compress95). The miss
-penalty is the other side of the trade-off: a longer block takes longer to
-transfer, and a real cache would pay that on every miss. In sim-outorder an L1
-miss that hits in the L2 costs a fixed 6 cycles regardless of block size, so our
-IPC curves show almost no penalty. Even so, the lowest miss rate does not give
-the highest IPC for compress95: 64 bytes has the lowest miss rate (4.31% against
-4.70%) but 32 bytes has the (very slightly) highest IPC, because the extra misses
-avoided are cheap ones the core already hid. For cc1, 64 bytes is best on both,
-by 0.06% in IPC. With a real, size-dependent miss penalty, 32 bytes would be the
-better choice for both.
+one word also brings in the words around it, and the next accesses often land
+there. With a fixed 16 KB, though, longer blocks mean fewer of them, so each
+doubling helps less (2.10 points for compress95 from 8 to 16 bytes, 0.39 from 32
+to 64). The miss penalty is the other side of the trade-off: a longer block takes
+longer to transfer, and a real cache would pay that on every miss. sim-outorder
+charges a fixed 6 cycles for an L1 miss that hits in the L2, so our IPC curves
+show almost no penalty. Even so, the lowest miss rate does not give the highest
+IPC for compress95: 64 bytes has the lowest miss rate (4.31% against 4.70%), but
+32 bytes has the slightly higher IPC, because the misses a longer block avoids
+are cheap ones the core was already hiding. For cc1, 64 bytes is best on both
+counts, by 0.06% in IPC. With a real, size-dependent miss penalty, 32 bytes would
+be the better choice for both programs.
 
 ## Question (c): CPI per extra 100 cycles, with and without L2; value of an L2
 Fitting a straight line through each curve, every extra 100 cycles of memory
-latency costs 0.068 CPI for compress95 and 0.371 CPI for cc1 with the L2,
-against 0.876 and 7.851 CPI without it, which is 13 and 21 times more. With an
-L2, only L1 misses that also miss in the L2 reach memory, and the L2 filters out
-most of them (its miss rate was 9.9% and 4.2% in Part 1). Without it, every L1
-miss pays the full memory latency. The L2 makes the processor almost
-insensitive to how slow main memory is, which matters because memory latency
-in cycles keeps growing as processors get faster. Removing it to save area would
-be the worst possible trade for these programs.
+latency costs 0.068 CPI for compress95 and 0.371 CPI for cc1 with the L2, against
+0.876 and 7.851 without it, 13 and 21 times more. With an L2, only L1 misses that
+also miss in the L2 reach memory, and the L2 filters out most of them (its miss
+rate was 9.9% and 4.2% in Part 1). Without it, every L1 miss pays the full memory
+latency. The L2 makes the processor almost insensitive to how slow main memory
+is, which matters more and more as memory falls further behind the processor.
+For these programs, dropping the L2 to save area would be the worst trade a
+designer could make.
 
 ## Question (d): which misses cause the damage without L2?
-Graph 5 shows the L1 misses that go straight to memory when there is no L2:
+Graph 5 shows the L1 misses that go straight to memory when there is no L2.
 compress95 has 0.16 instruction misses and 17.4 data misses per 1000
 instructions, while cc1 has 80.8 instruction misses and 5.9 data misses. cc1 is
-damaged by instruction misses: without an L2, each of them stops fetch for the
-whole memory latency, and the out-of-order core cannot hide that because no new
-instructions arrive to execute. This is why cc1's CPI reaches 16.7 at 200
-cycles. compress95 is damaged by data misses, which hurt less: while a load
-waits, the RUU can still execute independent instructions that were already
-fetched, so its CPI rises to only 2.3 at 200 cycles (x3.3 against x9.3 for cc1).
+damaged by instruction misses: without an L2, each one stops fetch for the whole
+memory latency, and the out-of-order core cannot hide that because no new
+instructions arrive to execute. That is why cc1's CPI reaches 16.7 at 200 cycles.
+compress95 is damaged by data misses, which hurt less, since while a load waits
+the RUU can still execute independent instructions that were already fetched.
+Its CPI rises only to 2.3 at 200 cycles, 3.3 times its CPI with the L2, against 9.3
+times for cc1.
 
 ## Question (e): were the Part 1 predictions right?
-Mostly yes. Part 1 predicted that compress95 would be more sensitive to the L1
+Mostly, yes. In Part 1 we predicted that compress95 would react more to the L1
 data cache: growing it from 1 KB to 64 KB raises compress95's IPC by 10.9%
-against 7.3% for cc1, and compress95 still has 2.7% data misses where cc1 has
-almost none. Part 1 also predicted that cc1 would suffer more from anything that
-makes instruction misses expensive, and that it would be the more sensitive
-benchmark overall: removing the L2 multiplies cc1's CPI by 9.3 at 200 cycles
-against 3.3 for compress95, and its latency cost is 21 times higher. One thing
-we did not expect is how small the IPC gains from a bigger L1 are, because the
-L2 and out-of-order execution already hide most L1 data misses.
+against 7.3% for cc1, and compress95 still misses 2.7% of the time at 64 KB where
+cc1 has almost no misses left. We also predicted that cc1 would suffer more from
+anything that makes instruction misses expensive, and would be the more
+sensitive program overall. Removing the L2 multiplies cc1's CPI by 9.3 at 200
+cycles against 3.3 for compress95, and its cost per 100 cycles of latency is 21
+times higher. What we did not expect was how small the IPC gains from a bigger
+L1 would be, because the L2 and out-of-order execution already hide most L1
+data misses.
 
 ## Observations / problems
-- The fully-associative runs use 32 to 2048 ways in one set; the simulator
-  models them with a hash table, so they run as fast as the normal caches.
+- The 16 KB and 32-byte runs use the default configuration and give exactly the
+  Part 3 RUU 16 results (compress95 1.7145, cc1 0.8849).

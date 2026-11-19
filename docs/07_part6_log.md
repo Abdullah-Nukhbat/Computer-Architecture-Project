@@ -83,7 +83,30 @@ the two best and tries the free knobs (associativity, block size). Stage 4
 | D24 | W=8, RUU 64, il1 16 KB 8-way 64 B, dl1 8 KB 8-way 32 B, L2 128 KB 16-way 64 B, comb | 94 | 2.1953 | 1.2488 | 1.6557 | +34.4% |
 | D25 | W=8, RUU 32, il1 16 KB 8-way 64 B, dl1 16 KB 8-way 32 B, L2 128 KB 8-way 64 B, comb | 94 | 2.1197 | 1.2304 | 1.6150 | +31.1% |
 
-Scatter plot: data/part6_g1_ipc_vs_cost.png. Final vs default: data/part6_g2_final_vs_default.png.
+### Graph 1: geometric-mean IPC vs cost (data/part6_g1_ipc_vs_cost.png)
+The scatter plot shows all 26 designs we simulated, costing from 86 to 98 units.
+Their geometric-mean IPC ranges from 1.10, for the design with no L2, to 1.66 for
+our final design D24, against 1.23 for the default configuration. Cost on its own
+predicts very little: most of the best designs cost exactly 94 units, but so do
+some of the weaker ones, such as D05 (1.34) and D08 (1.35). What matters is where
+the units go. The best designs all spend 32 units on an 8-wide core, keep a 128 KB
+L2 and use the free options, associativity and block size, to cut cc1's
+instruction misses, while the worst ones shrink or remove the L2. Under a fixed
+budget, putting the units where each program is actually limited beats simply
+spending more of them.
+
+### Graph 2: final design vs default (data/part6_g2_final_vs_default.png)
+Our final design raises IPC from 1.715 to 2.195 on compress95 (28%) and from 0.885
+to 1.249 on cc1 (41%), for 94 units against the default's 86. The two programs
+gain for different reasons. compress95 profits from the wider core and bigger
+window: its average RUU occupancy grows from 12.4 to 37.0 entries, and its
+mispredictions fall from 18.0 to 15.4 per 1000 instructions with the combined
+predictor, even though the smaller 8 KB data cache now misses 6.1% of accesses
+instead of 4.7%. cc1 profits mainly from the instruction cache: 8-way
+associativity and 64-byte blocks cut its instruction misses from 80.8 to 42.1 per
+1000 instructions, so the wider core is finally fed. cc1 gains more in
+percentage because instruction misses were its main bottleneck, and under this
+cost model they were almost free to fix.
 
 ## (c) Justification
 Our design spends the budget where Parts 2 to 5 showed our two programs lose the
@@ -115,7 +138,8 @@ Making the 16 KB instruction cache 4-way instead of direct-mapped raised cc1's I
 by 7.5% on its own (D03), and 64-byte blocks raised it by another 13.2% (1.095 to
 1.239, D16 to D17), because a compiler's code runs through long sequences of
 instructions, so each 64-byte block brings in the next 8 instructions (PISA
-instructions are 8 bytes) before they are needed. A 16-way, 128 KB L2 (D24) added a final 0.5%.
+instructions are 8 bytes) before they are needed. Making the 128 KB L2 16-way
+(D24) added a final 0.5%.
 
 What we gave up. The L1 data cache is half the default size (8 KB) and the L2 is
 half the default size (128 KB). The L2 cannot go lower: Part 4(c) showed it is
