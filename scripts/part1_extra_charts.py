@@ -3,7 +3,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-DATA = "/mnt/d/CA_Project/data"
+from paths import RES, DATA  # reads .env (defaults: repo results/ and data/)
 rows = list(csv.DictReader(open(f"{DATA}/part1_table.csv")))
 colors = ["#0f8b8d", "#d64550"]
 

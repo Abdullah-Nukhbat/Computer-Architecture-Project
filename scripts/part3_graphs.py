@@ -4,8 +4,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.ticker import NullLocator
 
-RES = "/mnt/d/CA_Project/results"
-DATA = "/mnt/d/CA_Project/data"
+from paths import RES, DATA  # reads .env (defaults: repo results/ and data/)
 benches = ["compress95", "cc1"]
 sizes = [4, 8, 16, 32, 64, 128]
 colors = {"compress95": "#0f8b8d", "cc1": "#d64550"}
