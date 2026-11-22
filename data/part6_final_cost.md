@@ -1,4 +1,4 @@
-# Final design D37_D34_dl1_4k_ruu32
+# Final design D41_D37_dl1_8way
 
 | Component | Cost |
 |---|---|
@@ -12,6 +12,6 @@
 
 | | default | final |
 |---|---|---|
-| IPC compress95 | 1.7145 | 2.1790 |
-| IPC cc1 | 0.8849 | 1.3652 |
-| Geometric-mean IPC | 1.2317 | 1.7248 |
+| IPC compress95 | 1.7145 | 2.1831 |
+| IPC cc1 | 0.8849 | 1.3687 |
+| Geometric-mean IPC | 1.2317 | 1.7286 |

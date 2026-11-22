@@ -96,6 +96,17 @@ DESIGNS = [
       "D34 + D-cache 4 KB + RUU 32"),
     D("D38_D34_dl1_4k_2way", 8, 32, (8, 128, 16), (64, 32, 2), (128, 128, 16), "comb",
       "D34 + 4 KB 2-way D-cache + RUU 32"),
+        # ---- 6f: build on D37 (W=8, RUU 32, 16-way caches, 4 KB D-cache)
+    D("D39_D37_ruu64_il1_8k", 8, 64, (4, 128, 16), (32, 32, 4), (128, 128, 16), "comb",
+      "D37 with RUU 64 paid for by an 8 KB I-cache"),
+    D("D40_D37_ruu64_L2_128k", 8, 64, (8, 128, 16), (32, 32, 4), (64, 128, 16), "comb",
+      "D37 with RUU 64 paid for by a 128 KB L2"),
+    D("D41_D37_dl1_8way", 8, 32, (8, 128, 16), (16, 32, 8), (128, 128, 16), "comb",
+      "D37 with 8-way 4 KB D-cache (free)"),
+    D("D42_D37_dl1_blk64", 8, 32, (8, 128, 16), (16, 64, 4), (128, 128, 16), "comb",
+      "D37 with 64 B D-cache blocks (free)"),
+    D("D43_ruu128_small_caches", 8, 128, (4, 128, 16), (32, 32, 4), (64, 128, 16), "comb",
+      "RUU 128 with 8 KB I-cache and 128 KB L2"),
 ]
 
 # Set to a design name to force the final design; None = best geometric-mean IPC
