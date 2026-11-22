@@ -40,6 +40,25 @@ DESIGNS = [
       "cheap low-end design"),
     D("D12_ruu64_il1_32k", 4, 64, (128, 64, 4), DEF_DL1, (256, 64, 4), "comb",
       "bigger window, 32 KB I-cache, 64 KB L2"),
+        # ---- 6b: isolate why D03 won (D03 = 4-way I-cache, 64 B blocks)
+    D("D13_il1_dm_blk64", 4, 32, (256, 64, 1), DEF_DL1, DEF_L2, "comb",
+      "D03 but I-cache direct-mapped: isolates the effect of 64 B blocks"),
+    D("D14_il1_4way_blk32", 4, 32, (128, 32, 4), DEF_DL1, DEF_L2, "comb",
+      "D03 but I-cache 32 B blocks: isolates the effect of 4-way"),
+    # ---- 6b: free tweaks, one change from D03
+    D("D15_il1_8way", 4, 32, (32, 64, 8), DEF_DL1, DEF_L2, "comb",
+      "D03 but 8-way I-cache (free)"),
+    D("D16_dl1_blk64", 4, 32, (64, 64, 4), (64, 64, 4), DEF_L2, "comb",
+      "D03 but D-cache 64 B blocks (free)"),
+    D("D17_L2_8way", 4, 32, (64, 64, 4), DEF_DL1, (512, 64, 8), "comb",
+      "D03 but 8-way L2, same 256 KB (free)"),
+    D("D18_blk128_il1_L2", 4, 32, (32, 128, 4), DEF_DL1, (512, 128, 4), "comb",
+      "D03 but 128 B blocks in I-cache and L2, same sizes (free)"),
+    # ---- 6b: trade units between components
+    D("D19_dl1_8k_ruu64", 4, 64, (64, 64, 4), (64, 32, 4), DEF_L2, "comb",
+      "D03 but D-cache 8 KB and RUU 64: trades D-cache for window"),
+    D("D20_W8_fullL2", 8, 16, (64, 64, 4), (64, 32, 4), DEF_L2, "comb",
+      "W=8, RUU 16, D-cache 8 KB, keeps the full 256 KB L2"),
 ]
 
 # Set to a design name to force the final design; None = best geometric-mean IPC
