@@ -1,0 +1,26 @@
+design,W,ruu,il1,dl1,l2,bpred,cost,ipc_compress95,ipc_cc1,geomean_ipc,gain_vs_default_pct,note
+D11_W2_cheap,2,32,"(512, 32, 1)","(128, 32, 4)","(256, 64, 4)",bimod2048,58.0,1.102,0.6389,0.8391,-31.88,cheap low-end design
+D01_default,4,16,"(512, 32, 1)","(128, 32, 4)","(1024, 64, 4)",bimod2048,86.0,1.7145,0.8849,1.2317,0.0,reference: default machine
+D06_W8_smallL2,8,32,"(64, 64, 4)","(128, 32, 4)","(256, 64, 4)",comb,86.0,1.8905,1.006,1.3791,11.96,"width 8, L2 cut to 64 KB"
+D02_ruu32_comb,4,32,"(512, 32, 1)","(128, 32, 4)","(1024, 64, 4)",comb,94.0,1.9172,0.9307,1.3358,8.45,bigger window + combined predictor (Parts 3 and 5)
+D03_il1_free,4,32,"(64, 64, 4)","(128, 32, 4)","(1024, 64, 4)",comb,94.0,1.9227,1.1387,1.4797,20.13,"same 16 KB I-cache but 4-way, 64 B blocks (free in the cost model)"
+D04_il1_32k_halfL2,4,32,"(256, 32, 4)","(128, 32, 4)","(512, 64, 4)",comb,94.0,1.784,1.1169,1.4116,14.6,32 KB I-cache paid for by halving the L2 to 128 KB
+D05_il1_dl1_blk64,4,32,"(128, 64, 4)","(64, 64, 4)","(512, 64, 4)",comb,94.0,1.7874,1.1825,1.4538,18.03,"32 KB 4-way I-cache with 64 B blocks, 64 B D-blocks, 128 KB L2"
+D07_W8_ruu64,8,64,"(64, 64, 4)","(128, 32, 4)","(256, 64, 4)",comb,94.0,1.9909,1.0246,1.4282,15.95,width 8 with a 64-entry window
+D09_noL2_bigL1,4,32,"(256, 32, 4)","(256, 32, 4)",,comb,94.0,1.6552,0.7628,1.1236,-8.77,"no L2, 32 KB L1s (tests the value of the L2)"
+D10_bigger_dl1,4,32,"(64, 64, 4)","(256, 32, 4)","(512, 64, 4)",comb,94.0,1.8065,1.089,1.4026,13.87,"32 KB D-cache, 128 KB L2"
+D12_ruu64_il1_32k,4,64,"(128, 64, 4)","(128, 32, 4)","(256, 64, 4)",comb,94.0,1.6993,1.0162,1.3141,6.69,"bigger window, 32 KB I-cache, 64 KB L2"
+D13_il1_dm_blk64,4,32,"(256, 64, 1)","(128, 32, 4)","(1024, 64, 4)",comb,94.0,1.9186,1.0846,1.4425,17.11,D03 but I-cache direct-mapped: isolates the effect of 64 B blocks
+D14_il1_4way_blk32,4,32,"(128, 32, 4)","(128, 32, 4)","(1024, 64, 4)",comb,94.0,1.9229,1.006,1.3908,12.92,D03 but I-cache 32 B blocks: isolates the effect of 4-way
+D15_il1_8way,4,32,"(32, 64, 8)","(128, 32, 4)","(1024, 64, 4)",comb,94.0,1.9239,1.1433,1.4831,20.41,D03 but 8-way I-cache (free)
+D16_dl1_blk64,4,32,"(64, 64, 4)","(64, 64, 4)","(1024, 64, 4)",comb,94.0,1.9207,1.1387,1.4789,20.07,D03 but D-cache 64 B blocks (free)
+D17_L2_8way,4,32,"(64, 64, 4)","(128, 32, 4)","(512, 64, 8)",comb,94.0,1.9267,1.1464,1.4862,20.66,"D03 but 8-way L2, same 256 KB (free)"
+D18_blk128_il1_L2,4,32,"(32, 128, 4)","(128, 32, 4)","(512, 128, 4)",comb,94.0,1.8984,1.2106,1.516,23.08,"D03 but 128 B blocks in I-cache and L2, same sizes (free)"
+D19_dl1_8k_ruu64,4,64,"(64, 64, 4)","(64, 32, 4)","(1024, 64, 4)",comb,94.0,1.9332,1.1342,1.4808,20.22,D03 but D-cache 8 KB and RUU 64: trades D-cache for window
+D21_D18_8way,4,32,"(16, 128, 8)","(128, 32, 4)","(256, 128, 8)",comb,94.0,1.9029,1.2305,1.5302,24.23,D18 + 8-way I-cache + 8-way L2 (free tweaks stacked)
+D22_D18_dl1_blk,4,32,"(32, 128, 4)","(64, 64, 4)","(512, 128, 4)",comb,94.0,1.8987,1.2099,1.5157,23.05,D18 + 64 B D-cache blocks (tests whether D-blocks now help)
+D23_D18_ruu64,4,64,"(32, 128, 4)","(64, 32, 4)","(512, 128, 4)",comb,94.0,1.9062,1.205,1.5156,23.04,D18 but D-cache 8 KB and RUU 64 (D19 idea on D18)
+D24_D18_il1_32k,4,32,"(64, 128, 4)","(128, 32, 4)","(256, 128, 4)",comb,94.0,1.6756,1.1683,1.3991,13.59,"D18 + 32 KB I-cache, paid by halving L2 to 128 KB"
+D25_D18_blk256,4,32,"(16, 256, 4)","(128, 32, 4)","(256, 256, 4)",comb,94.0,1.842,1.2186,1.4982,21.64,D18 but 256 B blocks in I-cache and L2 (does the trend continue?)
+D08_W8_il1_32k,8,32,"(128, 64, 4)","(128, 32, 4)","(128, 64, 4)",comb,98.0,1.7267,0.8769,1.2305,-0.1,"width 8, 32 KB I-cache, only a 32 KB L2"
+D20_W8_fullL2,8,16,"(64, 64, 4)","(64, 32, 4)","(1024, 64, 4)",comb,98.0,1.9352,1.1671,1.5029,22.01,"W=8, RUU 16, D-cache 8 KB, keeps the full 256 KB L2"

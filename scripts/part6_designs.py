@@ -59,6 +59,17 @@ DESIGNS = [
       "D03 but D-cache 8 KB and RUU 64: trades D-cache for window"),
     D("D20_W8_fullL2", 8, 16, (64, 64, 4), (64, 32, 4), DEF_L2, "comb",
       "W=8, RUU 16, D-cache 8 KB, keeps the full 256 KB L2"),
+        # ---- 6c: build on D18 (best so far)
+    D("D21_D18_8way", 4, 32, (16, 128, 8), DEF_DL1, (256, 128, 8), "comb",
+      "D18 + 8-way I-cache + 8-way L2 (free tweaks stacked)"),
+    D("D22_D18_dl1_blk", 4, 32, (32, 128, 4), (64, 64, 4), (512, 128, 4), "comb",
+      "D18 + 64 B D-cache blocks (tests whether D-blocks now help)"),
+    D("D23_D18_ruu64", 4, 64, (32, 128, 4), (64, 32, 4), (512, 128, 4), "comb",
+      "D18 but D-cache 8 KB and RUU 64 (D19 idea on D18)"),
+    D("D24_D18_il1_32k", 4, 32, (64, 128, 4), DEF_DL1, (256, 128, 4), "comb",
+      "D18 + 32 KB I-cache, paid by halving L2 to 128 KB"),
+    D("D25_D18_blk256", 4, 32, (16, 256, 4), DEF_DL1, (256, 256, 4), "comb",
+      "D18 but 256 B blocks in I-cache and L2 (does the trend continue?)"),
 ]
 
 # Set to a design name to force the final design; None = best geometric-mean IPC

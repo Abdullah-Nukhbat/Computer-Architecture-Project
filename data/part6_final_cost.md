@@ -1,4 +1,4 @@
-# Final design D18_blk128_il1_L2
+# Final design D21_D18_8way
 
 | Component | Cost |
 |---|---|
@@ -12,6 +12,6 @@
 
 | | default | final |
 |---|---|---|
-| IPC compress95 | 1.7145 | 1.8984 |
-| IPC cc1 | 0.8849 | 1.2106 |
-| Geometric-mean IPC | 1.2317 | 1.5160 |
+| IPC compress95 | 1.7145 | 1.9029 |
+| IPC cc1 | 0.8849 | 1.2305 |
+| Geometric-mean IPC | 1.2317 | 1.5302 |
