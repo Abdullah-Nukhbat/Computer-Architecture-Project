@@ -7,7 +7,7 @@ of SimpleScalar, LLC (info@simplescalar.com).
 
 sim: command line: /mnt/d/CA_Project/simplesim-3.0/sim-outorder -config /mnt/d/CA_Project/configs/final_design.cfg -redir:sim /mnt/d/CA_Project/results/compress95_P6v_final_cfg.txt ../Programs/compress95.ss 
 
-sim: simulation started @ Sun Nov 22 15:12:53 2026, options follow:
+sim: simulation started @ Sun Nov 22 15:17:41 2026, options follow:
 
 sim-outorder: This simulator implements a very detailed out-of-order issue
 superscalar processor with a two-level memory system and speculative
@@ -136,8 +136,8 @@ sim_num_refs               28767300 # total number of loads and stores committed
 sim_num_loads              17119145 # total number of loads committed
 sim_num_stores         11648155.0000 # total number of stores committed
 sim_num_branches           14361066 # total number of branches committed
-sim_elapsed_time                 40 # total simulation time in seconds
-sim_inst_rate          2010812.5500 # simulation speed (in insts/sec)
+sim_elapsed_time                 42 # total simulation time in seconds
+sim_inst_rate          1915059.5714 # simulation speed (in insts/sec)
 sim_total_insn            103068132 # total number of instructions executed
 sim_total_refs             36245513 # total number of loads and stores executed
 sim_total_loads            22122948 # total number of loads executed

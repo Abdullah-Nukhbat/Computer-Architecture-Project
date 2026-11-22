@@ -70,6 +70,21 @@ DESIGNS = [
       "D18 + 32 KB I-cache, paid by halving L2 to 128 KB"),
     D("D25_D18_blk256", 4, 32, (16, 256, 4), DEF_DL1, (256, 256, 4), "comb",
       "D18 but 256 B blocks in I-cache and L2 (does the trend continue?)"),
+        # ---- 6d: try to beat D21 (D21 = I 16KB/128B/8-way, L2 256KB/128B/8-way, RUU 32, comb)
+    D("D26_W8_D21tweaks", 8, 16, (16, 128, 8), (64, 32, 4), (256, 128, 8), "comb",
+      "W=8, RUU 16, D-cache 8 KB, D21 cache organisation"),
+    D("D27_D21_dl1_8k", 4, 32, (16, 128, 8), (64, 32, 4), (256, 128, 8), "comb",
+      "D21 with 8 KB D-cache (cost 86): reference for D28-D30"),
+    D("D28_dl1_8k_ruu64", 4, 64, (16, 128, 8), (64, 32, 4), (256, 128, 8), "comb",
+      "D21, D-cache 8 KB, RUU 64"),
+    D("D29_dl1_8k_il1_32k_L2_128k", 4, 32, (32, 128, 8), (64, 32, 4), (128, 128, 8), "comb",
+      "D21, D-cache 8 KB, 32 KB 8-way I-cache, L2 halved to 128 KB"),
+    D("D31_L2_blk256", 4, 32, (16, 128, 8), DEF_DL1, (128, 256, 8), "comb",
+      "D21 but L2 block 256 B (free)"),
+    D("D32_16way", 4, 32, (8, 128, 16), DEF_DL1, (128, 128, 16), "comb",
+      "D21 but 16-way I-cache and L2 (free)"),
+    D("D33_dl1_4k_ruu64", 4, 64, (16, 128, 8), (32, 32, 4), (256, 128, 8), "comb",
+      "D21, D-cache 4 KB, RUU 64"),
 ]
 
 # Set to a design name to force the final design; None = best geometric-mean IPC
